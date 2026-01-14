@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="protected-content" style="display: none;">
+    <div class="hero" style="margin: 2rem 0;">
+        <h1>Find Repositories</h1>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto; margin-bottom: 3rem;">
+        <form action="{{ url_for('search') }}" method="POST" onsubmit="showLoader()">
+            <div class="input-group">
+                <input type="text" name="query" placeholder="Type keywords (e.g., machine learning, flask boilerplate)"
+                    value="{{ query if query else '' }}" required>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+        <div id="loader" class="loader"></div>
+    </div>
+
+    {% if results %}
+    <div class="grid">
+        {% for repo in results %}
+        <div class="card">
+            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                <img src="{{ repo.owner_avatar }}" class="avatar-small" style="width: 32px; height: 32px;" alt="">
+                <a href="{{ repo.url }}" target="_blank"
+                    style="color: var(--accent-color); font-weight: 600; text-decoration: none; font-size: 1.1rem;">{{
+                    repo.name }}</a>
+            </div>
+            <p
+                style="color: var(--text-secondary); height: 60px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 0.9rem;">
+                {{ repo.description }}
+            </p>
+            <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.85rem;">
+                    <span style="margin-right: 10px;"><i class="fas fa-star" style="color: var(--warning-color);"></i>
+                        {{
+                        repo.stars }}</span>
+                    {% if repo.language %}
+                    <span><i class="fas fa-circle" style="font-size: 0.6rem; color: var(--accent-color);"></i> {{
+                        repo.language }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <form action="{{ url_for('analyze') }}" method="POST" style="margin-top: 1rem;">
+                <input type="hidden" name="repo_url" value="{{ repo.url }}">
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; padding: 0.5rem; font-size: 0.9rem;">Analyze with AI</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

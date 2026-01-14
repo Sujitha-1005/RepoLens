@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>Explore GitHub with AI</h1>
+    <p>Unlock deep insights into repositories and developers using advanced AI analysis.</p>
+</div>
+
+<div class="grid">
+    <a href="{{ url_for('analyze') }}" class="card feature-card">
+        <i class="fas fa-code-branch feature-icon" style="color: #e1e5ea;"></i>
+        <h2>Analyze Repository</h2>
+        <p>Get a deep dive into any GitHub repo: tech stack, maintenance status, and AI explanation.</p>
+    </a>
+
+    <a href="{{ url_for('search') }}" class="card feature-card">
+        <i class="fas fa-compass feature-icon" style="color: #a371f7;"></i>
+        <h2>Search Projects</h2>
+        <p>Find the best repositories for your needs with smart sorting and key metrics.</p>
+    </a>
+
+    <a href="{{ url_for('profile') }}" class="card feature-card">
+        <i class="fas fa-user-astronaut feature-icon" style="color: #238636;"></i>
+        <h2>User Profile</h2>
+        <p>Analyze developer profiles, popular projects, and language expertise.</p>
+    </a>
+</div>
+{% endblock %}

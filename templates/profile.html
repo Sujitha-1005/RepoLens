@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="protected-content" style="display: none;">
+    <div style="max-width: 600px; margin: 0 auto; margin-bottom: 2rem;">
+        <form action="{{ url_for('profile') }}" method="POST" onsubmit="showLoader()">
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Enter GitHub Username" required>
+                <button type="submit" class="btn btn-primary">View Profile</button>
+            </div>
+        </form>
+        <div id="loader" class="loader"></div>
+    </div>
+
+    {% if data %}
+    <div class="card" style="margin-bottom: 2rem; border-color: var(--accent-color);">
+        <div class="header-with-avatar" style="margin-bottom: 0;">
+            <img src="{{ data.avatar_url }}" class="avatar-large" alt="">
+            <div>
+                <h1>{{ data.name }}</h1>
+                <a href="{{ data.html_url }}" target="_blank"
+                    style="color: var(--text-secondary); text-decoration: none;">@{{ data.username }}</a>
+                <p style="margin-top: 0.5rem;">{{ data.bio }}</p>
+                <div style="margin-top: 1rem; display: flex; gap: 1.5rem;">
+                    <span><i class="fas fa-users"></i> <b>{{ data.followers }}</b> followers</span>
+                    <span><i class="fas fa-user-friends"></i> <b>{{ data.following }}</b> following</span>
+                    <span><i class="fas fa-calendar-alt"></i> Joined {{ data.created_at }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Stats Overview</h3>
+            <div class="stats-grid" style="margin-top: 1rem;">
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.public_repos }}</div>
+                    <div class="stat-label">Repos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.total_stars }}</div>
+                    <div class="stat-label">Total Stars</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Top Languages</h3>
+            <ul style="margin-top: 1rem;">
+                {% for lang in data.top_languages %}
+                <li
+                    style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
+                    <span>{{ lang.name }}</span>
+                    <span class="tag" style="margin: 0;">{{ lang.count }} repos</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <h2 style="margin-bottom: 1.5rem;">Most Popular Repositories</h2>
+    <div class="grid">
+        {% for repo in data.popular_repos %}
+        <div class="card">
+            <h3><a href="{{ repo.url }}" target="_blank" style="color: var(--accent-color); text-decoration: none;">{{
+                    repo.name }}</a></h3>
+            <p
+                style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                {{ repo.description }}
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <span style="font-size: 0.9rem;"><i class="fas fa-star" style="color: var(--warning-color);"></i> {{
+                    repo.stars }}</span>
+                {% if repo.language %}
+                <span class="tag" style="font-size: 0.75rem;">{{ repo.language }}</span>
+                {% endif %}
+            </div>
+            <form action="{{ url_for('analyze') }}" method="POST" style="margin-top: 1rem;">
+                <input type="hidden" name="repo_url" value="{{ repo.url }}">
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; padding: 0.5rem; font-size: 0.9rem;">Analyze</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

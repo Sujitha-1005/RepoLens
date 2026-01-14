@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="protected-content" style="display: none;">
+    <div style="max-width: 800px; margin: 0 auto; margin-bottom: 2rem;">
+        <form action="{{ url_for('analyze') }}" method="POST" onsubmit="showLoader()">
+            <div class="input-group">
+                <input type="text" name="repo_url"
+                    placeholder="Paste GitHub Repository URL (e.g., https://github.com/flask/flask)" required>
+                <button type="submit" class="btn btn-primary">Analyze</button>
+            </div>
+        </form>
+        <div id="loader" class="loader"></div>
+    </div>
+
+    {% if data %}
+    <div class="header-with-avatar">
+        <div style="flex: 1;">
+            <h1><a href="{{ data.clone_url }}" target="_blank" style="text-decoration: none; color: inherit;">{{
+                    data.owner
+                    }} / {{ data.name }}</a></h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 1.1rem;">{{ data.description }}</p>
+            <div style="margin-top: 1rem;">
+                {% if data.license != 'None' %}
+                <span class="tag"><i class="fas fa-balance-scale"></i> {{ data.license }}</span>
+                {% endif %}
+                <span class="tag"><i class="fas fa-tools"></i> {{ data.maintenance }}</span>
+                <span class="tag"><i class="far fa-clock"></i> Updated: {{ data.updated_at }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Quick Stats -->
+        <div class="card">
+            <h3> <i class="fas fa-chart-bar" style="color: var(--accent-color);"></i> Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.stars }}</div>
+                    <div class="stat-label">Stars</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.forks }}</div>
+                    <div class="stat-label">Forks</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.watchers }}</div>
+                    <div class="stat-label">Watchers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ data.open_issues }}</div>
+                    <div class="stat-label">Issues</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Check -->
+        <div class="card">
+            <h3> <i class="fas fa-heartbeat" style="color: var(--danger-color);"></i> Health Check</h3>
+            <ul style="margin-top: 1rem;">
+                <li>
+                    <i class="fas fa-{{ 'check-circle' if data.health.has_ci_cd else 'times-circle' }}"
+                        style="color: var(--{{ 'success' if data.health.has_ci_cd else 'text-secondary' }}-color);"></i>
+                    CI/CD Pipelines
+                </li>
+                <li>
+                    <i class="fas fa-{{ 'check-circle' if data.health.has_contributing else 'times-circle' }}"
+                        style="color: var(--{{ 'success' if data.health.has_contributing else 'text-secondary' }}-color);"></i>
+                    Contributing Guide
+                </li>
+                <li>
+                    <i class="fas fa-{{ 'check-circle' if data.health.has_license else 'times-circle' }}"
+                        style="color: var(--{{ 'success' if data.health.has_license else 'text-secondary' }}-color);"></i>
+                    License File
+                </li>
+                <li>
+                    <i class="fas fa-{{ 'check-circle' if data.health.has_gitignore else 'times-circle' }}"
+                        style="color: var(--{{ 'success' if data.health.has_gitignore else 'text-secondary' }}-color);"></i>
+                    .gitignore
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- AI Analysis Section -->
+    {% if data.ai_analysis %}
+    <div class="card" style="border-color: var(--accent-color);">
+        <h2 style="margin-top: 0;"> <i class="fas fa-robot" style="color: var(--accent-color);"></i> AI Analysis</h2>
+
+        <div style="margin-top: 1.5rem;">
+            <h3>What is it?</h3>
+            <p>{{ data.ai_analysis.summary }}</p>
+        </div>
+
+        <div class="grid" style="margin-top: 2rem;">
+            <div>
+                <h3>Tech Stack</h3>
+                <div>
+                    {% for tech in data.ai_analysis.tech_stack %}
+                    <span class="tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h3>Setup Difficulty</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="flex: 1; background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div
+                            style="width: {{ data.ai_analysis.setup_difficulty * 10 }}%; background: var(--warning-color); height: 100%;">
+                        </div>
+                    </div>
+                    <span style="font-weight: bold;">{{ data.ai_analysis.setup_difficulty }}/10</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">{{
+                    data.ai_analysis.setup_reasoning }}</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h3>Key Features</h3>
+            <ul>
+                {% for feature in data.ai_analysis.key_features %}
+                <li><i class="fas fa-star"
+                        style="color: var(--warning-color); font-size: 0.8rem; margin-right: 0.5rem;"></i> {{ feature }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h3>Similar Projects</h3>
+            <div>
+                {% for project in data.ai_analysis.similar_projects %}
+                <span class="tag" style="background: rgba(255, 255, 255, 0.1); color: var(--text-primary);">{{ project
+                    }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid">
+        <!-- Languages -->
+        <div class="card">
+            <h3> <i class="fas fa-code" style="color: var(--warning-color);"></i> Languages</h3>
+            <div style="margin-top: 1rem;">
+                {% for lang in data.languages %}
+                <div style="margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.2rem;">
+                        <span>{{ lang.name }}</span>
+                        <span>{{ lang.percent }}%</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="width: {{ lang.percent }}%; background: var(--accent-color); height: 100%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Contributors -->
+        <div class="card">
+            <h3> <i class="fas fa-users" style="color: var(--success-color);"></i> Top Contributors</h3>
+            <div style="margin-top: 1rem;">
+                {% for contrib in data.contributors %}
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <img src="{{ contrib.avatar_url }}" class="avatar-small" alt="">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500;">{{ contrib.login }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">{{ contrib.contributions }}
+                            commits
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

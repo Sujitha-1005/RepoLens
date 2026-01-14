@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoLens - AI Powered Explainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}" class="logo">
+            <i class="fab fa-github"></i>
+            <span>RepoLens</span> <span class="ai-badge">AI</span>
+        </a>
+        <div class="nav-links">
+            <span class="protected-nav" style="display: none;">
+                <a href="{{ url_for('analyze') }}">Analyze Repo</a>
+                <a href="{{ url_for('search') }}">Search</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+            </span>
+            <div id="auth-links" style="display: inline-block; margin-left: 1rem;"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function showLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'block';
+        }
+    </script>
+    <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+
+</html>
